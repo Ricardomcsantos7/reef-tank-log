@@ -1,18 +1,33 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) alert(error.message);
-    else alert("Logged in successfully!");
+
+    if (error) return alert(error.message);
+
+    // Supabase user may exist but email not confirmed yet
+    const user = data.user;
+    if (!user.confirmed_at) {
+      alert("You must confirm your email before logging in.");
+      return;
+    }
+
+    // Proceed to dashboard
+    navigate("/dashboard");
   };
 
   return (
@@ -21,7 +36,7 @@ export default function Login() {
       <input
         type="email"
         placeholder="Email"
-        className="block w-full mb-2 p-2 border rounded"
+        className="block w-full mb-2 p-2 border rounded text-black"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

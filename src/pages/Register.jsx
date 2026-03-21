@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
-    if (error) alert(error.message);
-    else alert("Registration successful! Check your email to confirm.");
+
+    if (error) return alert(error.message);
+
+    // Success message
+    alert("Registration successful! Check your email to confirm.");
+
+    // Redirect to login instead of dashboard
+    navigate("/login");
   };
 
   return (
@@ -21,14 +30,14 @@ export default function Register() {
       <input
         type="email"
         placeholder="Email"
-        className="block w-full mb-2 p-2 border rounded"
+        className="block w-full mb-2 p-2 border rounded text-black"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        className="block w-full mb-4 p-2 border rounded"
+        className="block w-full mb-4 p-2 border rounded text-black"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
