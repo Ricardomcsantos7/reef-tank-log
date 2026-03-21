@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 export default function AquariumPage() {
   const { id } = useParams();
@@ -13,8 +15,12 @@ export default function AquariumPage() {
 
   // Water test fields
   const [temperature, setTemperature] = useState("");
-  const [ph, setPh] = useState("");
   const [salinity, setSalinity] = useState("");
+  const [alkalinity, setAlkalinity] = useState("");
+  const [calcium, setCalcium] = useState("");
+  const [magnesium, setMagnesium] = useState("");
+  const [nitrate, setNitrate] = useState("");
+  const [phosphate, setPhosphate] = useState("");
 
   // Water change
   const [changeAmount, setChangeAmount] = useState("");
@@ -104,82 +110,116 @@ export default function AquariumPage() {
       <h1 className="text-2xl font-bold mb-2">{aquarium.name}</h1>
       {aquarium.volume && <p className="mb-4">Volume: {aquarium.volume} L</p>}
 
-      <form onSubmit={handleAddLog} className="mb-4 space-y-2">
-        <select
-          value={logType}
-          onChange={(e) => setLogType(e.target.value)}
-          className="block w-full p-2 border rounded bg-gray-800 text-white"
-        >
-          <option value="water_test">Water Test</option>
-          <option value="water_change">Water Change</option>
-          <option value="media">Media / Activated Carbon</option>
-        </select>
+      <Card className="mb-6 w-full max-w-md mx-auto p-4">
+        <h2 className="text-lg font-medium mb-4 text-center">Add Log</h2>
 
-        {/* Dynamic Form Fields */}
+        <form onSubmit={handleAddLog} className="space-y-3">
+          {/* Log Type */}
+          <select
+            value={logType}
+            onChange={(e) => setLogType(e.target.value)}
+            className="block w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100"
+          >
+            <option value="water_test">Water Test</option>
+            <option value="water_change">Water Change</option>
+            <option value="media">Media / Activated Carbon</option>
+          </select>
 
-        {logType === "water_test" && (
-          <>
+          {/* Water Test Fields */}
+          {logType === "water_test" && (
+            <>
+              <input
+                type="number"
+                placeholder="Temperature (°C)"
+                value={temperature}
+                onChange={(e) => setTemperature(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+
+              <input
+                type="number"
+                placeholder="Salinity (SG)"
+                step="0.001"
+                value={salinity}
+                onChange={(e) => setSalinity(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <input
+                type="number"
+                placeholder="Alkalinity (dKH)"
+                value={alkalinity}
+                onChange={(e) => setAlkalinity(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <input
+                type="number"
+                placeholder="Calcium (ppm)"
+                value={calcium}
+                onChange={(e) => setCalcium(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <input
+                type="number"
+                placeholder="Magnesium (ppm)"
+                value={magnesium}
+                onChange={(e) => setMagnesium(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <input
+                type="number"
+                placeholder="Nitrate (ppm)"
+                value={nitrate}
+                onChange={(e) => setNitrate(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <input
+                type="number"
+                placeholder="Phosphate (ppm)"
+                value={phosphate}
+                onChange={(e) => setPhosphate(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+            </>
+          )}
+
+          {/* Water Change Fields */}
+          {logType === "water_change" && (
             <input
               type="number"
-              placeholder="Temperature (°C)"
-              value={temperature}
-              onChange={(e) => setTemperature(e.target.value)}
-              className="block w-full p-2 border rounded bg-gray-800 text-white"
+              placeholder="Water changed (liters)"
+              value={changeAmount}
+              onChange={(e) => setChangeAmount(e.target.value)}
+              className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
             />
-            <input
-              type="number"
-              placeholder="pH"
-              value={ph}
-              onChange={(e) => setPh(e.target.value)}
-              className="block w-full p-2 border rounded bg-gray-800 text-white"
-            />
-            <input
-              type="number"
-              placeholder="Salinity"
-              value={salinity}
-              onChange={(e) => setSalinity(e.target.value)}
-              className="block w-full p-2 border rounded bg-gray-800 text-white"
-            />
-          </>
-        )}
+          )}
 
-        {logType === "water_change" && (
-          <input
-            type="number"
-            placeholder="Water changed (liters)"
-            value={changeAmount}
-            onChange={(e) => setChangeAmount(e.target.value)}
-            className="block w-full p-2 border rounded bg-gray-800 text-white"
-          />
-        )}
+          {/* Media Fields */}
+          {logType === "media" && (
+            <>
+              <input
+                type="text"
+                placeholder="Media type (e.g. Carbon)"
+                value={mediaType}
+                onChange={(e) => setMediaType(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
+              />
+              <select
+                value={mediaAction}
+                onChange={(e) => setMediaAction(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100"
+              >
+                <option value="added">Added</option>
+                <option value="removed">Removed</option>
+              </select>
+            </>
+          )}
 
-        {logType === "media" && (
-          <>
-            <input
-              type="text"
-              placeholder="Media type (e.g. Carbon)"
-              value={mediaType}
-              onChange={(e) => setMediaType(e.target.value)}
-              className="block w-full p-2 border rounded bg-gray-800 text-white"
-            />
-            <select
-              value={mediaAction}
-              onChange={(e) => setMediaAction(e.target.value)}
-              className="block w-full p-2 border rounded bg-gray-800 text-white"
-            >
-              <option value="added">Added</option>
-              <option value="removed">Removed</option>
-            </select>
-          </>
-        )}
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Add Log
-        </button>
-      </form>
+          {/* Submit */}
+          <Button type="submit" className="w-full">
+            Add Log
+          </Button>
+        </form>
+      </Card>
 
       <h2 className="text-xl font-bold mb-2">Logs</h2>
       {logs.length === 0 && <p>No logs yet.</p>}

@@ -1,24 +1,23 @@
 import { Link } from "react-router-dom";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-white">
-      <h1 className="text-4xl font-bold mb-4">ReefTank Log 🐠</h1>
-      <p className="mb-6">Track your reef aquarium like a pro</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-slate-100 px-4">
+      <h1 className="text-4xl font-semibold mb-2 tracking-tight">
+        ReefTank Log 🐠
+      </h1>
 
-      <div className="space-x-4">
-        <Link
-          to="/login"
-          className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Login
-        </Link>
-        <Link
-          to="/register"
-          className="bg-green-500 px-4 py-2 rounded hover:bg-green-600"
-        >
+      <p className="text-slate-400 mb-8 text-center">
+        Simple tracking for your reef aquarium
+      </p>
+
+      <div className="flex gap-4">
+        <Button to="/login">Login</Button>
+        <Button to="/register" variant="secondary">
           Register
-        </Link>
+        </Button>
       </div>
     </div>
   );

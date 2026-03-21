@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Link } from "react-router-dom";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 export default function Dashboard() {
   const [aquariums, setAquariums] = useState([]);
@@ -63,52 +65,62 @@ export default function Dashboard() {
   if (loading) return <div className="text-white p-4">Loading...</div>;
 
   return (
-    <div className="p-4 max-w-md mx-auto text-white">
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4">
       <h1 className="text-2xl font-bold mb-4">Your Aquariums</h1>
 
       {/* Add Aquarium Form */}
-      <form onSubmit={handleAddAquarium} className="mb-4 space-y-2">
-        <input
-          type="text"
-          placeholder="Aquarium Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="block w-full p-2 border rounded bg-gray-800 text-white placeholder-gray-400"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Volume (liters)"
-          value={volume}
-          onChange={(e) => setVolume(e.target.value)}
-          className="block w-full p-2 border rounded bg-gray-800 text-white placeholder-gray-400"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Add Aquarium
-        </button>
-      </form>
+      <div className="flex justify-center mb-6">
+        <Card className="w-full max-w-md">
+          <h2 className="text-lg font-medium mb-4 text-center">
+            Add New Aquarium
+          </h2>
+
+          <form onSubmit={handleAddAquarium} className="space-y-3">
+            <input
+              type="text"
+              placeholder="Aquarium Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500"
+              required
+            />
+
+            <input
+              type="number"
+              placeholder="Volume (liters)"
+              value={volume}
+              onChange={(e) => setVolume(e.target.value)}
+              className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500"
+            />
+
+            <Button type="submit" className="w-full">
+              Add Aquarium
+            </Button>
+          </form>
+        </Card>
+      </div>
 
       {/* Aquarium List */}
-      {aquariums.length === 0 && <p>No aquariums yet.</p>}
-      <ul>
+      {aquariums.length === 0 && (
+        <p className="text-slate-400">No aquariums yet.</p>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2">
         {aquariums.map((tank) => (
-          <li key={tank.id} className="border p-2 mb-2 rounded bg-gray-800">
-            {tank.id ? (
-              <Link
-                to={`/aquarium/${tank.id}`}
-                className="text-blue-400 hover:underline"
-              >
-                {tank.name} ({tank.volume || "?"} L)
-              </Link>
-            ) : (
-              <span>{tank.name}</span>
-            )}
-          </li>
+          <Card key={tank.id}>
+            {/* Name */}
+            <h2 className="text-lg font-medium mb-3">{tank.name}</h2>
+
+            {/* Volume */}
+            <p className="text-sm text-slate-400 mb-4">
+              Volume: {tank.volume || "?"} L
+            </p>
+
+            {/* Action */}
+            {tank.id && <Button to={`/aquarium/${tank.id}`}>View</Button>}
+          </Card>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
