@@ -1,18 +1,20 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Link } from "react-router-dom";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
+import { getColorClass } from "../components/utils/ColorUtils";
 
 export default function Dashboard() {
   const [aquariums, setAquariums] = useState([]);
+  const [latestLogs, setLatestLogs] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Form state
   const [name, setName] = useState("");
   const [volume, setVolume] = useState("");
 
+  // Fetch aquariums on mount ---
   useEffect(() => {
     fetchAquariums();
   }, []);
@@ -37,6 +39,28 @@ export default function Dashboard() {
     }
   };
 
+  // Fetch latest log per aquarium whenever aquariums change ---
+  useEffect(() => {
+    if (aquariums.length === 0) return;
+
+    const fetchLatestLogs = async () => {
+      const logsObj = {};
+      for (let tank of aquariums) {
+        const { data: logData } = await supabase
+          .from("logs")
+          .select("*")
+          .eq("aquarium_id", tank.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        logsObj[tank.id] = logData || null;
+      }
+      setLatestLogs(logsObj);
+    };
+
+    fetchLatestLogs();
+  }, [aquariums]);
+
   const handleAddAquarium = async (e) => {
     e.preventDefault();
 
@@ -54,9 +78,10 @@ export default function Dashboard() {
       ]);
 
       if (error) throw error;
+
       setName("");
       setVolume("");
-      fetchAquariums();
+      fetchAquariums(); // Just refetch aquariums and logs separately
     } catch (err) {
       alert(err.message);
     }
@@ -105,21 +130,154 @@ export default function Dashboard() {
         <p className="text-slate-400">No aquariums yet.</p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {aquariums.map((tank) => (
-          <Card key={tank.id}>
-            {/* Name */}
-            <h2 className="text-lg font-medium mb-3">{tank.name}</h2>
+      <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {aquariums.map((tank) => {
+          const log = latestLogs[tank.id];
+          return (
+            <Card
+              key={tank.id}
+              className="flex flex-col justify-between h-full"
+            >
+              <div>
+                <h2 className="text-xl font-bold">{tank.name}</h2>
+                {tank.volume && (
+                  <p className="text-sm mb-2">Volume: {tank.volume} L</p>
+                )}
+              </div>
 
-            {/* Volume */}
-            <p className="text-sm text-slate-400 mb-4">
-              Volume: {tank.volume || "?"} L
-            </p>
-
-            {/* Action */}
-            {tank.id && <Button to={`/aquarium/${tank.id}`}>View</Button>}
-          </Card>
-        ))}
+              {log ? (
+                log.type === "water_test" ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 mt-4">
+                    {log.temperature !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "temperature",
+                          log.temperature,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.temperature}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Temp
+                        </span>
+                      </div>
+                    )}
+                    {log.salinity !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "salinity",
+                          log.salinity,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.salinity}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Salinity
+                        </span>
+                      </div>
+                    )}
+                    {log.alkalinity !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "alkalinity",
+                          log.alkalinity,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.alkalinity}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Alkalinity
+                        </span>
+                      </div>
+                    )}
+                    {log.calcium !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "calcium",
+                          log.calcium,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.calcium}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Calcium
+                        </span>
+                      </div>
+                    )}
+                    {log.magnesium !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "magnesium",
+                          log.magnesium,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.magnesium}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Magnesium
+                        </span>
+                      </div>
+                    )}
+                    {log.nitrate !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "nitrate",
+                          log.nitrate,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.nitrate}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Nitrate
+                        </span>
+                      </div>
+                    )}
+                    {log.phosphate !== null && (
+                      <div
+                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                          "phosphate",
+                          log.phosphate,
+                        )} bg-slate-900`}
+                      >
+                        <span></span>
+                        <span className="text-4xl sm:text-5xl font-bold">
+                          {log.phosphate}
+                        </span>
+                        <span className="text-sm mt-1 text-slate-300">
+                          Phosphate
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-sm">
+                    Last log: {log.type.replace("_", " ")} -{" "}
+                    {new Date(log.created_at).toLocaleDateString("en-GB")}
+                  </div>
+                )
+              ) : (
+                <div className="text-sm text-slate-400">No logs yet</div>
+              )}
+              <div className="flex justify-end mt-4">
+                <Link to={`/aquarium/${tank.id}`}>
+                  <Button>View</Button>
+                </Link>
+              </div>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
