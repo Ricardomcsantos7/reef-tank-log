@@ -9,7 +9,18 @@ export default function AquariumPage() {
   const [loading, setLoading] = useState(true);
 
   const [logType, setLogType] = useState("water_test");
-  const [logData, setLogData] = useState("");
+
+  // Water test fields
+  const [temperature, setTemperature] = useState("");
+  const [ph, setPh] = useState("");
+  const [salinity, setSalinity] = useState("");
+
+  // Water change
+  const [changeAmount, setChangeAmount] = useState("");
+
+  // Media
+  const [mediaType, setMediaType] = useState("");
+  const [mediaAction, setMediaAction] = useState("added");
 
   useEffect(() => {
     fetchAquarium();
@@ -40,28 +51,48 @@ export default function AquariumPage() {
   const handleAddLog = async (e) => {
     e.preventDefault();
 
-    let parsedData = null;
-    if (logData) {
-      try {
-        parsedData = JSON.parse(logData);
-      } catch {
-        return alert("Invalid JSON format");
-      }
+    let data = {};
+
+    if (logType === "water_test") {
+      data = {
+        temperature: temperature ? Number(temperature) : null,
+        ph: ph ? Number(ph) : null,
+        salinity: salinity ? Number(salinity) : null,
+      };
     }
 
-    const { data, error } = await supabase.from("logs").insert([
+    if (logType === "water_change") {
+      data = {
+        amount: changeAmount ? Number(changeAmount) : null,
+      };
+    }
+
+    if (logType === "media") {
+      data = {
+        type: mediaType,
+        action: mediaAction,
+      };
+    }
+
+    const { error } = await supabase.from("logs").insert([
       {
-        aquarium_id: id,
+        aquarium_id: aquariumId,
         type: logType,
-        data: parsedData,
+        data,
       },
     ]);
 
-    if (error) alert(error.message);
-    else {
-      setLogData("");
-      fetchLogs();
-    }
+    if (error) return alert(error.message);
+
+    // Reset fields
+    setTemperature("");
+    setPh("");
+    setSalinity("");
+    setChangeAmount("");
+    setMediaType("");
+    setMediaAction("added");
+
+    fetchLogs();
   };
 
   if (loading) return <div>Loading...</div>;
@@ -83,12 +114,63 @@ export default function AquariumPage() {
           <option value="media">Media / Activated Carbon</option>
         </select>
 
-        <textarea
-          placeholder='Log data as JSON, e.g. {"pH":8.1,"temp":25}'
-          value={logData}
-          onChange={(e) => setLogData(e.target.value)}
-          className="block w-full p-2 border rounded bg-gray-800 text-white placeholder-gray-400"
-        />
+        {/* Dynamic Form Fields */}
+
+        {logType === "water_test" && (
+          <>
+            <input
+              type="number"
+              placeholder="Temperature (°C)"
+              value={temperature}
+              onChange={(e) => setTemperature(e.target.value)}
+              className="block w-full p-2 border rounded bg-gray-800 text-white"
+            />
+            <input
+              type="number"
+              placeholder="pH"
+              value={ph}
+              onChange={(e) => setPh(e.target.value)}
+              className="block w-full p-2 border rounded bg-gray-800 text-white"
+            />
+            <input
+              type="number"
+              placeholder="Salinity"
+              value={salinity}
+              onChange={(e) => setSalinity(e.target.value)}
+              className="block w-full p-2 border rounded bg-gray-800 text-white"
+            />
+          </>
+        )}
+
+        {logType === "water_change" && (
+          <input
+            type="number"
+            placeholder="Water changed (liters)"
+            value={changeAmount}
+            onChange={(e) => setChangeAmount(e.target.value)}
+            className="block w-full p-2 border rounded bg-gray-800 text-white"
+          />
+        )}
+
+        {logType === "media" && (
+          <>
+            <input
+              type="text"
+              placeholder="Media type (e.g. Carbon)"
+              value={mediaType}
+              onChange={(e) => setMediaType(e.target.value)}
+              className="block w-full p-2 border rounded bg-gray-800 text-white"
+            />
+            <select
+              value={mediaAction}
+              onChange={(e) => setMediaAction(e.target.value)}
+              className="block w-full p-2 border rounded bg-gray-800 text-white"
+            >
+              <option value="added">Added</option>
+              <option value="removed">Removed</option>
+            </select>
+          </>
+        )}
 
         <button
           type="submit"
@@ -108,7 +190,20 @@ export default function AquariumPage() {
           >
             <strong>{log.type}</strong> -{" "}
             {new Date(log.created_at).toLocaleString()}
-            <pre className="text-sm">{JSON.stringify(log.data, null, 2)}</pre>
+            {log.type === "water_test" && (
+              <div>
+                Temp: {log.data?.temperature ?? "-"} °C | pH:{" "}
+                {log.data?.ph ?? "-"} | Salinity: {log.data?.salinity ?? "-"}
+              </div>
+            )}
+            {log.type === "water_change" && (
+              <div>Water changed: {log.data?.amount ?? "-"} L</div>
+            )}
+            {log.type === "media" && (
+              <div>
+                {log.data?.type} {log.data?.action}
+              </div>
+            )}
           </li>
         ))}
       </ul>

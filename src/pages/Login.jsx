@@ -27,7 +27,7 @@ export default function Login() {
       <input
         type="password"
         placeholder="Password"
-        className="block w-full mb-4 p-2 border rounded"
+        className="block w-full mb-4 p-2 border rounded text-black"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
