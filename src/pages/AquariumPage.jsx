@@ -58,52 +58,104 @@ export default function AquariumPage() {
   const handleAddLog = async (e) => {
     e.preventDefault();
 
-    let data = {};
+    try {
+      let insertData = { aquarium_id: aquariumId, type: logType };
 
-    if (logType === "water_test") {
-      data = {
-        temperature: temperature ? Number(temperature) : null,
-        ph: ph ? Number(ph) : null,
-        salinity: salinity ? Number(salinity) : null,
-      };
+      if (logType === "water_test") {
+        insertData = {
+          ...insertData,
+          temperature: temperature ? Number(temperature) : null,
+          salinity: salinity ? Number(salinity) : null,
+          alkalinity: alkalinity ? Number(alkalinity) : null,
+          calcium: calcium ? Number(calcium) : null,
+          magnesium: magnesium ? Number(magnesium) : null,
+          nitrate: nitrate ? Number(nitrate) : null,
+          phosphate: phosphate ? Number(phosphate) : null,
+        };
+      }
+
+      if (logType === "water_change") {
+        insertData = {
+          ...insertData,
+          amount: changeAmount ? Number(changeAmount) : null,
+        };
+      }
+
+      if (logType === "media") {
+        insertData = {
+          ...insertData,
+          media_type: mediaType || null,
+          media_action: mediaAction || null,
+        };
+      }
+
+      const { error } = await supabase.from("logs").insert([insertData]);
+      if (error) throw error;
+
+      // Reset fields
+      setTemperature("");
+      setSalinity("");
+      setAlkalinity("");
+      setCalcium("");
+      setMagnesium("");
+      setNitrate("");
+      setPhosphate("");
+      setChangeAmount("");
+      setMediaType("");
+      setMediaAction("added");
+
+      fetchLogs();
+    } catch (err) {
+      alert(err.message);
     }
-
-    if (logType === "water_change") {
-      data = {
-        amount: changeAmount ? Number(changeAmount) : null,
-      };
-    }
-
-    if (logType === "media") {
-      data = {
-        type: mediaType,
-        action: mediaAction,
-      };
-    }
-
-    const { error } = await supabase.from("logs").insert([
-      {
-        aquarium_id: aquariumId,
-        type: logType,
-        data,
-      },
-    ]);
-
-    if (error) return alert(error.message);
-
-    // Reset fields
-    setTemperature("");
-    setPh("");
-    setSalinity("");
-    setChangeAmount("");
-    setMediaType("");
-    setMediaAction("added");
-
-    fetchLogs();
   };
 
   if (loading) return <div>Loading...</div>;
   if (!aquarium) return <div>Aquarium not found</div>;
+
+  const getColorClass = (param, value) => {
+    if (value === null || value === undefined) return "text-slate-400";
+
+    switch (param) {
+      case "temperature":
+        if (value < 23 || value > 28) return "text-red-500";
+        if (value < 24 || value > 26) return "text-yellow-400";
+        return "text-green-400";
+
+      case "salinity":
+        if (value < 1.023 || value > 1.027) return "text-red-500";
+        if (value < 1.025 || value > 1.026) return "text-yellow-400";
+        return "text-green-400";
+
+      case "alkalinity":
+        if (value < 6.5 || value > 13) return "text-red-500";
+        if (value < 7 || value > 12) return "text-yellow-400";
+        return "text-green-400";
+
+      case "calcium":
+        if (value < 390 || value > 460) return "text-red-500";
+        if (value < 400 || value > 450) return "text-yellow-400";
+        return "text-green-400";
+
+      case "magnesium":
+        if (value < 1200 || value > 1400) return "text-red-500";
+        if (value < 1250 || value > 1350) return "text-yellow-400";
+        return "text-green-400";
+
+      case "nitrate":
+        if (value < 1 || value > 20) return "text-red-500";
+        if (value < 2 || value > 10) return "text-yellow-400"; // optional finer warning
+        return "text-green-400";
+
+      case "phosphate":
+        if (value < 0.01 || value > 0.2) return "text-red-500";
+        if (value < 0.02 || value > 0.1) return "text-yellow-400"; // optional finer warning
+        return "text-green-400";
+
+      default:
+        return "text-slate-100";
+    }
+  };
 
   return (
     <div className="p-4 max-w-md mx-auto">
@@ -223,30 +275,84 @@ export default function AquariumPage() {
 
       <h2 className="text-xl font-bold mb-2">Logs</h2>
       {logs.length === 0 && <p>No logs yet.</p>}
-      <ul>
-        {logs.map((log) => (
-          <li
-            key={log.id}
-            className="border p-2 mb-2 rounded bg-gray-800 text-white"
-          >
-            <strong>{log.type}</strong> -{" "}
-            {new Date(log.created_at).toLocaleString()}
-            {log.type === "water_test" && (
-              <div>
-                Temp: {log.data?.temperature ?? "-"} °C | pH:{" "}
-                {log.data?.ph ?? "-"} | Salinity: {log.data?.salinity ?? "-"}
+      <ul className="space-y-2">
+        {logs.map((log) => {
+          // Format the date for this log
+          const dateStr = new Date(log.created_at).toLocaleDateString("en-GB");
+          const timeStr = new Date(log.created_at).toLocaleTimeString("en-GB");
+
+          return (
+            <li
+              key={log.id}
+              className="border rounded-md p-3 bg-slate-800 text-slate-100"
+            >
+              <div className="flex justify-between mb-1">
+                <strong className="capitalize">
+                  {log.type.replace("_", " ")}
+                </strong>
+                <span className="text-sm text-slate-400">
+                  {dateStr} {timeStr}
+                </span>
               </div>
-            )}
-            {log.type === "water_change" && (
-              <div>Water changed: {log.data?.amount ?? "-"} L</div>
-            )}
-            {log.type === "media" && (
-              <div>
-                {log.data?.type} {log.data?.action}
-              </div>
-            )}
-          </li>
-        ))}
+
+              {log.type === "water_test" && (
+                <div className="text-sm space-y-1">
+                  {log.temperature !== null && (
+                    <div
+                      className={getColorClass("temperature", log.temperature)}
+                    >
+                      Temp: {log.temperature} °C
+                    </div>
+                  )}
+                  {log.salinity !== null && (
+                    <div className={getColorClass("salinity", log.salinity)}>
+                      Salinity: {log.salinity} SG
+                    </div>
+                  )}
+                  {log.alkalinity !== null && (
+                    <div
+                      className={getColorClass("alkalinity", log.alkalinity)}
+                    >
+                      Alkalinity: {log.alkalinity} dKH
+                    </div>
+                  )}
+                  {log.calcium !== null && (
+                    <div className={getColorClass("calcium", log.calcium)}>
+                      Calcium: {log.calcium} ppm
+                    </div>
+                  )}
+                  {log.magnesium !== null && (
+                    <div className={getColorClass("magnesium", log.magnesium)}>
+                      Magnesium: {log.magnesium} ppm
+                    </div>
+                  )}
+                  {log.nitrate !== null && (
+                    <div className={getColorClass("nitrate", log.nitrate)}>
+                      Nitrate: {log.nitrate} ppm
+                    </div>
+                  )}
+                  {log.phosphate !== null && (
+                    <div className={getColorClass("phosphate", log.phosphate)}>
+                      Phosphate: {log.phosphate} ppm
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {log.type === "water_change" && (
+                <div className="text-sm">
+                  Water changed: {log.amount ?? "-"} L
+                </div>
+              )}
+
+              {log.type === "media" && (
+                <div className="text-sm">
+                  {log.media_type} {log.media_action}
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
