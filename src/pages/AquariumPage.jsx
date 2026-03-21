@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 
 export default function AquariumPage() {
   const { id } = useParams();
+  const aquariumId = Number(id);
   const [aquarium, setAquarium] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +51,8 @@ export default function AquariumPage() {
 
   const handleAddLog = async (e) => {
     e.preventDefault();
+    console.log("Adding log...");
+    console.log("aquariumId:", aquariumId);
 
     let data = {};
 
