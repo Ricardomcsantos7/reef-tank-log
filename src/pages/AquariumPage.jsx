@@ -51,8 +51,6 @@ export default function AquariumPage() {
 
   const handleAddLog = async (e) => {
     e.preventDefault();
-    console.log("Adding log...");
-    console.log("aquariumId:", aquariumId);
 
     let data = {};
 
