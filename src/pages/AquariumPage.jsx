@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { getColorClass } from "../components/utils/ColorUtils";
+import ParameterChart from "../components/charts/ParameterChart";
 
 export default function AquariumPage() {
   const { id } = useParams();
@@ -60,11 +61,13 @@ export default function AquariumPage() {
     e.preventDefault();
 
     try {
-      let insertData = { aquarium_id: aquariumId, type: logType };
+      const payload = {
+        aquarium_id: aquariumId,
+        type: logType,
+      };
 
       if (logType === "water_test") {
-        insertData = {
-          ...insertData,
+        Object.assign(payload, {
           temperature: temperature ? Number(temperature) : null,
           salinity: salinity ? Number(salinity) : null,
           alkalinity: alkalinity ? Number(alkalinity) : null,
@@ -72,25 +75,19 @@ export default function AquariumPage() {
           magnesium: magnesium ? Number(magnesium) : null,
           nitrate: nitrate ? Number(nitrate) : null,
           phosphate: phosphate ? Number(phosphate) : null,
-        };
+        });
       }
 
       if (logType === "water_change") {
-        insertData = {
-          ...insertData,
-          amount: changeAmount ? Number(changeAmount) : null,
-        };
+        payload.amount = changeAmount ? Number(changeAmount) : null;
       }
 
       if (logType === "media") {
-        insertData = {
-          ...insertData,
-          media_type: mediaType || null,
-          media_action: mediaAction || null,
-        };
+        payload.media_type = mediaType || null;
+        payload.media_action = mediaAction || null;
       }
 
-      const { error } = await supabase.from("logs").insert([insertData]);
+      const { error } = await supabase.from("logs").insert([payload]);
       if (error) throw error;
 
       // Reset fields
@@ -111,6 +108,28 @@ export default function AquariumPage() {
     }
   };
 
+  const chartData = logs
+    .filter((log) => log.type === "water_test" && log.temperature !== null)
+    .map((log) => ({
+      date: new Date(log.created_at).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      temperature: log.temperature,
+    }))
+    .reverse(); // oldest → newest
+
+  const temperatureData = logs
+    .filter((log) => log.type === "water_test" && log.temperature !== null)
+    .map((log) => ({
+      date: new Date(log.created_at).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      temperature: log.temperature,
+    }))
+    .reverse();
+
   if (loading) {
     return (
       <div className="bg-slate-900 flex justify-center pt-24">
@@ -121,7 +140,7 @@ export default function AquariumPage() {
   if (!aquarium) return <div>Aquarium not found</div>;
 
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="p-4 max-w-md mx-auto w-full">
       <h1 className="text-xl font-bold mb-2">{aquarium.name}</h1>
       {aquarium.volume && <p className="mb-4">Volume: {aquarium.volume} L</p>}
 
@@ -137,7 +156,7 @@ export default function AquariumPage() {
           >
             <option value="water_test">Water Test</option>
             <option value="water_change">Water Change</option>
-            <option value="media">Media / Activated Carbon</option>
+            <option value="media">Media Change</option>
           </select>
 
           {/* Water Test Fields */}
@@ -213,7 +232,7 @@ export default function AquariumPage() {
             <>
               <input
                 type="text"
-                placeholder="Media type (e.g. Carbon)"
+                placeholder="Media type (e.g. Activated Carbon)"
                 value={mediaType}
                 onChange={(e) => setMediaType(e.target.value)}
                 className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500"
@@ -317,6 +336,19 @@ export default function AquariumPage() {
           );
         })}
       </ul>
+
+      {/* Charts */}
+      <h2 className="text-xl font-bold mt-4 mb-2">Charts</h2>
+      <ParameterChart
+        data={temperatureData}
+        dataKey="temperature"
+        title="Temperature"
+        unit="°C"
+        minLimit={23}
+        maxLimit={28}
+        idealMin={24}
+        idealMax={26}
+      />
     </div>
   );
 }
