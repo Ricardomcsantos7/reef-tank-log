@@ -87,7 +87,13 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) return <div className="text-white p-4">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="bg-slate-900 flex justify-center pt-24">
+        <div className="text-xl text-slate-100 animate-pulse">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4">
@@ -127,7 +133,10 @@ export default function Dashboard() {
 
       {/* Aquarium List */}
       {aquariums.length === 0 && (
-        <p className="text-slate-400">No aquariums yet.</p>
+        <p className="text-slate-400 text-center mt-4">
+          No aquariums yet 🐠 <br />
+          <span className="text-sm">Add your first tank above</span>
+        </p>
       )}
 
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">

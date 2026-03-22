@@ -30,27 +30,42 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-900 text-white p-4 flex justify-between">
-      <Link to="/" className="font-bold text-lg">
+    <nav className="bg-slate-900 text-white p-4 flex items-center justify-between">
+      <Link
+        to="/"
+        className="font-bold text-lg hover:text-orange-400 transition"
+      >
         ReefTank Log 🐠
       </Link>
 
       <div className="space-x-4">
         {user ? (
           <>
-            <Link to="/dashboard" className="hover:underline">
+            <Link
+              to="/dashboard"
+              className="text-slate-300 hover:text-white transition"
+            >
               Dashboard
             </Link>
-            <button onClick={handleLogout} className="text-red-400">
+            <button
+              onClick={handleLogout}
+              className="text-red-400 hover:text-red-300 transition"
+            >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="hover:underline">
+            <Link
+              to="/login"
+              className="text-slate-300 hover:text-white transition"
+            >
               Login
             </Link>
-            <Link to="/register" className="hover:underline">
+            <Link
+              to="/register"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-md transition"
+            >
               Register
             </Link>
           </>
