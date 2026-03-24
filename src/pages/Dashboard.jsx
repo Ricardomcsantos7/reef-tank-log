@@ -156,7 +156,7 @@ export default function Dashboard() {
 
               {log ? (
                 log.type === "water_test" ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 mt-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-4">
                     {log.temperature !== null && (
                       <div
                         className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
@@ -167,9 +167,10 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.temperature}
+                          <span className="text-xl">°C</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
-                          Temp
+                          Temperature
                         </span>
                       </div>
                     )}
@@ -183,6 +184,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.salinity}
+                          <span className="text-xl">SG</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Salinity
@@ -199,6 +201,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.alkalinity}
+                          <span className="text-xl">dKH</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Alkalinity
@@ -215,6 +218,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.calcium}
+                          <span className="text-xl">ppm</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Calcium
@@ -231,6 +235,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.magnesium}
+                          <span className="text-xl">ppm</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Magnesium
@@ -247,6 +252,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.nitrate}
+                          <span className="text-xl">ppm</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Nitrate
@@ -263,6 +269,7 @@ export default function Dashboard() {
                         <span></span>
                         <span className="text-4xl sm:text-5xl font-bold">
                           {log.phosphate}
+                          <span className="text-xl">ppm</span>
                         </span>
                         <span className="text-sm mt-1 text-slate-300">
                           Phosphate
