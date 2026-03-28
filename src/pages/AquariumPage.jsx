@@ -31,6 +31,10 @@ export default function AquariumPage() {
   const [mediaType, setMediaType] = useState("");
   const [mediaAction, setMediaAction] = useState("added");
 
+  // Date
+  const [useCustomDate, setUseCustomDate] = useState(false);
+  const [customDate, setCustomDate] = useState("");
+
   useEffect(() => {
     fetchAquarium();
     fetchLogs();
@@ -65,6 +69,10 @@ export default function AquariumPage() {
         aquarium_id: aquariumId,
         type: logType,
       };
+
+      if (useCustomDate && customDate) {
+        payload.created_at = new Date(customDate).toISOString();
+      }
 
       if (logType === "water_test") {
         Object.assign(payload, {
@@ -101,6 +109,8 @@ export default function AquariumPage() {
       setChangeAmount("");
       setMediaType("");
       setMediaAction("added");
+      setUseCustomDate(false);
+      setCustomDate("");
 
       fetchLogs();
     } catch (err) {
@@ -271,6 +281,25 @@ export default function AquariumPage() {
                   <option value="removed">Removed</option>
                 </select>
               </>
+            )}
+
+            {/* Date */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={useCustomDate}
+                onChange={(e) => setUseCustomDate(e.target.checked)}
+              />
+              <label className="text-sm text-slate-300">Set custom date</label>
+            </div>
+
+            {useCustomDate && (
+              <input
+                type="datetime-local"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+                className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100"
+              />
             )}
 
             {/* Submit */}

@@ -165,7 +165,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.temperature}
                           <span className="text-xl">°C</span>
                         </span>
@@ -182,7 +182,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.salinity}
                           <span className="text-xl">SG</span>
                         </span>
@@ -199,7 +199,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.alkalinity}
                           <span className="text-xl">dKH</span>
                         </span>
@@ -216,7 +216,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.calcium}
                           <span className="text-xl">ppm</span>
                         </span>
@@ -233,7 +233,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.magnesium}
                           <span className="text-xl">ppm</span>
                         </span>
@@ -250,7 +250,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.nitrate}
                           <span className="text-xl">ppm</span>
                         </span>
@@ -267,7 +267,7 @@ export default function Dashboard() {
                         )} bg-slate-900`}
                       >
                         <span></span>
-                        <span className="text-4xl sm:text-5xl font-bold">
+                        <span className="text-4xl sm:text-4xl font-bold">
                           {log.phosphate}
                           <span className="text-xl">ppm</span>
                         </span>
