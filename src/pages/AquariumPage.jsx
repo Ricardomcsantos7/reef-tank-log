@@ -5,6 +5,7 @@ import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { getColorClass } from "../components/utils/ColorUtils";
 import ParameterChart from "../components/charts/ParameterChart";
+import WaterChangeChart from "../components/charts/WaterChangeChart";
 
 export default function AquariumPage() {
   const { id } = useParams();
@@ -162,6 +163,72 @@ export default function AquariumPage() {
       phosphate: log.phosphate,
     }))
     .reverse();
+
+  /* WATER CHANGES INFO */
+  const waterChangeLogs = logs
+    .filter((log) => log.type === "water_change" && log.amount !== null)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const last4Changes = waterChangeLogs
+    .slice(0, 4)
+    .map((log) => {
+      const percent = aquarium.volume
+        ? (log.amount / aquarium.volume) * 100
+        : null;
+
+      return {
+        date: new Date(log.created_at).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+        }),
+        percent: percent ? Number(percent.toFixed(1)) : null,
+      };
+    })
+    .reverse();
+
+  const avgLast4 =
+    last4Changes.length > 0
+      ? (
+          last4Changes.reduce((sum, c) => sum + (c.percent || 0), 0) /
+          last4Changes.length
+        ).toFixed(1)
+      : null;
+
+  const now = new Date();
+  const last30Days = waterChangeLogs.filter(
+    (log) =>
+      new Date(log.created_at) > new Date(now - 30 * 24 * 60 * 60 * 1000),
+  );
+
+  const avg30 =
+    last30Days.length > 0
+      ? (
+          last30Days.reduce((sum, log) => {
+            const percent = aquarium.volume
+              ? (log.amount / aquarium.volume) * 100
+              : 0;
+            return sum + percent;
+          }, 0) / last30Days.length
+        ).toFixed(1)
+      : null;
+
+  let avgDaysBetween = null;
+
+  if (waterChangeLogs.length >= 2) {
+    const intervals = [];
+
+    for (let i = 0; i < waterChangeLogs.length - 1; i++) {
+      const d1 = new Date(waterChangeLogs[i].created_at);
+      const d2 = new Date(waterChangeLogs[i + 1].created_at);
+
+      const diffDays = (d1 - d2) / (1000 * 60 * 60 * 24);
+      intervals.push(diffDays);
+    }
+
+    avgDaysBetween = (
+      intervals.reduce((a, b) => a + b, 0) / intervals.length
+    ).toFixed(1);
+  }
 
   if (loading) {
     return (
@@ -443,7 +510,7 @@ export default function AquariumPage() {
             dataKey="nitrate"
             title="Nitrate"
             unit="ppm"
-            minLimit={0}
+            minLimit={1}
             maxLimit={20}
             idealMin={1}
             idealMax={10}
@@ -454,12 +521,41 @@ export default function AquariumPage() {
             dataKey="phosphate"
             title="Phosphate"
             unit="ppm"
-            minLimit={0}
+            minLimit={0.01}
             maxLimit={0.2}
             idealMin={0.01}
             idealMax={0.1}
           />
         </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <WaterChangeChart data={last4Changes} />
+
+        {/* Stats card */}
+        <Card className="p-4">
+          <h2 className="text-lg font-semibold mb-4 text-slate-100">
+            Water Change Stats
+          </h2>
+
+          <div className="space-y-2 text-sm">
+            <div>
+              Avg (last 4):{" "}
+              <span className="text-blue-400">{avgLast4 ?? "-"}%</span>
+            </div>
+
+            <div>
+              Avg (30 days):{" "}
+              <span className="text-blue-400">{avg30 ?? "-"}%</span>
+            </div>
+
+            <div>
+              Frequency:{" "}
+              <span className="text-blue-400">
+                {avgDaysBetween ?? "-"} days
+              </span>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
