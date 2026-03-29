@@ -164,6 +164,16 @@ export default function AquariumPage() {
     }))
     .reverse();
 
+  /* LOADING */
+  if (loading) {
+    return (
+      <div className="bg-slate-900 flex justify-center pt-24">
+        <div className="text-2xl text-slate-100 animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+  if (!aquarium) return <div>Aquarium not found</div>;
+
   /* WATER CHANGES INFO */
   const waterChangeLogs = logs
     .filter((log) => log.type === "water_change" && log.amount !== null)
@@ -230,15 +240,15 @@ export default function AquariumPage() {
     ).toFixed(1);
   }
 
-  if (loading) {
-    return (
-      <div className="bg-slate-900 flex justify-center pt-24">
-        <div className="text-2xl text-slate-100 animate-pulse">Loading...</div>
-      </div>
-    );
-  }
-  if (!aquarium) return <div>Aquarium not found</div>;
+  const daysSinceLastChange =
+    waterChangeLogs.length > 0
+      ? Math.floor(
+          (new Date() - new Date(waterChangeLogs[0].created_at)) /
+            (1000 * 60 * 60 * 24),
+        )
+      : null;
 
+  /* RETURN HTML */
   return (
     <div className="p-4 max-w-6xl mx-auto w-full space-y-6">
       <h1 className="text-xl font-bold mb-2">{aquarium.name}</h1>
@@ -552,6 +562,13 @@ export default function AquariumPage() {
               Frequency:{" "}
               <span className="text-blue-400">
                 {avgDaysBetween ?? "-"} days
+              </span>
+            </div>
+
+            <div>
+              Last change:{" "}
+              <span className="text-blue-400">
+                {daysSinceLastChange ?? "-"} days ago
               </span>
             </div>
           </div>
