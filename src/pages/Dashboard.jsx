@@ -43,42 +43,63 @@ export default function Dashboard() {
   function getLatestParameters(logs) {
     const latest = {
       temperature: null,
-      kh: null,
       salinity: null,
-      ph: null,
+      alkalinity: null,
+      calcium: null,
+      magnesium: null,
+      nitrate: null,
+      phosphate: null,
     };
 
     for (let i = logs.length - 1; i >= 0; i--) {
       const log = logs[i];
 
-      if (latest.temperature === null && log.temperature != null) {
+      if (latest.temperature === null && log.temperature != null)
         latest.temperature = log.temperature;
-      }
 
-      if (latest.kh === null && log.kh != null) {
-        latest.kh = log.kh;
-      }
-
-      if (latest.salinity === null && log.salinity != null) {
+      if (latest.salinity === null && log.salinity != null)
         latest.salinity = log.salinity;
-      }
 
-      if (latest.ph === null && log.ph != null) {
-        latest.ph = log.ph;
-      }
+      if (latest.alkalinity === null && log.alkalinity != null)
+        latest.alkalinity = log.alkalinity;
 
-      if (
-        latest.temperature !== null &&
-        latest.kh !== null &&
-        latest.salinity !== null &&
-        latest.ph !== null
-      ) {
-        break;
-      }
+      if (latest.calcium === null && log.calcium != null)
+        latest.calcium = log.calcium;
+
+      if (latest.magnesium === null && log.magnesium != null)
+        latest.magnesium = log.magnesium;
+
+      if (latest.nitrate === null && log.nitrate != null)
+        latest.nitrate = log.nitrate;
+
+      if (latest.phosphate === null && log.phosphate != null)
+        latest.phosphate = log.phosphate;
     }
 
     return latest;
   }
+
+  useEffect(() => {
+    if (aquariums.length === 0) return;
+
+    const fetchParams = async () => {
+      const paramsObj = {};
+
+      for (let tank of aquariums) {
+        const { data: logs } = await supabase
+          .from("logs")
+          .select("*")
+          .eq("aquarium_id", tank.id)
+          .order("created_at", { ascending: true }); // important
+
+        paramsObj[tank.id] = logs ? getLatestParameters(logs) : null;
+      }
+
+      setLatestParams(paramsObj);
+    };
+
+    fetchParams();
+  }, [aquariums]);
 
   const handleAddAquarium = async (e) => {
     e.preventDefault();
@@ -160,7 +181,7 @@ export default function Dashboard() {
 
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         {aquariums.map((tank) => {
-          const log = latestLogs[tank.id];
+          const params = latestParams[tank.id];
           return (
             <Card
               key={tank.id}
@@ -173,135 +194,128 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {log ? (
-                log.type === "water_test" ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-4">
-                    {log.temperature !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "temperature",
-                          log.temperature,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.temperature}
-                          <span className="text-xl">°C</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Temperature
-                        </span>
-                      </div>
-                    )}
-                    {log.salinity !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "salinity",
-                          log.salinity,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.salinity}
-                          <span className="text-xl">SG</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Salinity
-                        </span>
-                      </div>
-                    )}
-                    {log.alkalinity !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "alkalinity",
-                          log.alkalinity,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.alkalinity}
-                          <span className="text-xl">dKH</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Alkalinity
-                        </span>
-                      </div>
-                    )}
-                    {log.calcium !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "calcium",
-                          log.calcium,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.calcium}
-                          <span className="text-xl">ppm</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Calcium
-                        </span>
-                      </div>
-                    )}
-                    {log.magnesium !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "magnesium",
-                          log.magnesium,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.magnesium}
-                          <span className="text-xl">ppm</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Magnesium
-                        </span>
-                      </div>
-                    )}
-                    {log.nitrate !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "nitrate",
-                          log.nitrate,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.nitrate}
-                          <span className="text-xl">ppm</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Nitrate
-                        </span>
-                      </div>
-                    )}
-                    {log.phosphate !== null && (
-                      <div
-                        className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
-                          "phosphate",
-                          log.phosphate,
-                        )} bg-slate-900`}
-                      >
-                        <span></span>
-                        <span className="text-4xl sm:text-4xl font-bold">
-                          {log.phosphate}
-                          <span className="text-xl">ppm</span>
-                        </span>
-                        <span className="text-sm mt-1 text-slate-300">
-                          Phosphate
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-sm">
-                    Last log: {log.type.replace("_", " ")} -{" "}
-                    {new Date(log.created_at).toLocaleDateString("en-GB")}
-                  </div>
-                )
+              {params ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mt-4">
+                  {params?.temperature !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "temperature",
+                        params.temperature,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.temperature}
+                        <span className="text-xl">°C</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Temperature
+                      </span>
+                    </div>
+                  )}
+                  {params?.salinity !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "salinity",
+                        params.salinity,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.salinity}
+                        <span className="text-xl">SG</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Salinity
+                      </span>
+                    </div>
+                  )}
+                  {params?.alkalinity !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "alkalinity",
+                        params.alkalinity,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.alkalinity}
+                        <span className="text-xl">dKH</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Alkalinity
+                      </span>
+                    </div>
+                  )}
+                  {params?.calcium !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "calcium",
+                        params.calcium,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.calcium}
+                        <span className="text-xl">ppm</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Calcium
+                      </span>
+                    </div>
+                  )}
+                  {params?.magnesium !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "magnesium",
+                        params.magnesium,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.magnesium}
+                        <span className="text-xl">ppm</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Magnesium
+                      </span>
+                    </div>
+                  )}
+                  {params?.nitrate !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "nitrate",
+                        params.nitrate,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.nitrate}
+                        <span className="text-xl">ppm</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Nitrate
+                      </span>
+                    </div>
+                  )}
+                  {params?.phosphate !== null && (
+                    <div
+                      className={`flex flex-col justify-between items-center rounded w-full aspect-square p-2 ${getColorClass(
+                        "phosphate",
+                        params.phosphate,
+                      )} bg-slate-900`}
+                    >
+                      <span></span>
+                      <span className="text-4xl sm:text-4xl font-bold">
+                        {params.phosphate}
+                        <span className="text-xl">ppm</span>
+                      </span>
+                      <span className="text-sm mt-1 text-slate-300">
+                        Phosphate
+                      </span>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="text-sm text-slate-400">No logs yet</div>
               )}
