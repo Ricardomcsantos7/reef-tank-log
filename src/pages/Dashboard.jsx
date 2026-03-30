@@ -7,7 +7,7 @@ import { getColorClass } from "../components/utils/ColorUtils";
 
 export default function Dashboard() {
   const [aquariums, setAquariums] = useState([]);
-  const [latestLogs, setLatestLogs] = useState({});
+  const [latestParams, setLatestParams] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Form state
@@ -39,27 +39,46 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch latest log per aquarium whenever aquariums change ---
-  useEffect(() => {
-    if (aquariums.length === 0) return;
-
-    const fetchLatestLogs = async () => {
-      const logsObj = {};
-      for (let tank of aquariums) {
-        const { data: logData } = await supabase
-          .from("logs")
-          .select("*")
-          .eq("aquarium_id", tank.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        logsObj[tank.id] = logData || null;
-      }
-      setLatestLogs(logsObj);
+  // Fetch latest log per aquarium whenever parameters change ---
+  function getLatestParameters(logs) {
+    const latest = {
+      temperature: null,
+      kh: null,
+      salinity: null,
+      ph: null,
     };
 
-    fetchLatestLogs();
-  }, [aquariums]);
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const log = logs[i];
+
+      if (latest.temperature === null && log.temperature != null) {
+        latest.temperature = log.temperature;
+      }
+
+      if (latest.kh === null && log.kh != null) {
+        latest.kh = log.kh;
+      }
+
+      if (latest.salinity === null && log.salinity != null) {
+        latest.salinity = log.salinity;
+      }
+
+      if (latest.ph === null && log.ph != null) {
+        latest.ph = log.ph;
+      }
+
+      if (
+        latest.temperature !== null &&
+        latest.kh !== null &&
+        latest.salinity !== null &&
+        latest.ph !== null
+      ) {
+        break;
+      }
+    }
+
+    return latest;
+  }
 
   const handleAddAquarium = async (e) => {
     e.preventDefault();
