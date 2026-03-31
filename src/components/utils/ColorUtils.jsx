@@ -1,4 +1,4 @@
-// components/utils/ColorUtils.jsx
+// Parameter range colors
 export const getColorClass = (param, value) => {
   if (value === null || value === undefined) return "text-slate-400";
 
