@@ -1,4 +1,4 @@
-// ColorUtils.jsx
+// components/utils/ColorUtils.jsx
 export const getColorClass = (param, value) => {
   if (value === null || value === undefined) return "text-slate-400";
 
