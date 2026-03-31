@@ -79,6 +79,7 @@ export default function Dashboard() {
     return latest;
   }
 
+  /* UseEffect */
   useEffect(() => {
     if (aquariums.length === 0) return;
 
@@ -101,6 +102,7 @@ export default function Dashboard() {
     fetchParams();
   }, [aquariums]);
 
+  /* handleAddAquarium */
   const handleAddAquarium = async (e) => {
     e.preventDefault();
 
