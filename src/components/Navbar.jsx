@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import logo from "../assets/dkorallen_logo_white_png.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -33,9 +34,13 @@ export default function Navbar() {
     <nav className="bg-slate-900 text-white p-4 flex items-center justify-between">
       <Link
         to="/"
-        className="font-bold text-lg hover:text-orange-400 transition"
+        className="font-bold text-lg hover:text-orange-500 transition"
       >
-        ReefTank Log 🐠
+        <div className="flex items-center gap-2">
+          <span>ReefTank</span>
+          <span className="text-orange-500">Log </span>
+          <img src={logo} alt="Logo" className="h-7 w-7" />
+        </div>
       </Link>
 
       <div className="space-x-4">
