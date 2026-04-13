@@ -10,31 +10,34 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-900 text-white">
+      <div className="min-h-screen flex flex-col bg-gray-900 text-white">
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+        <main className="flex-1 flex items-center justify-center">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/aquarium/:id"
-            element={
-              <ProtectedRoute>
-                <AquariumPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/aquarium/:id"
+              element={
+                <ProtectedRoute>
+                  <AquariumPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
       </div>
     </BrowserRouter>
   );
